@@ -15,7 +15,7 @@ app.use(express.static('public'));
 
 // MongoDB Connection
 const mongoURI = 'mongodb://localhost:27017/';
-mongoose.connect(mongoURI, { useNewUrlParser: true, useUnifiedTopology: true })
+mongoose.connect(mongoURI, {})
     .then(() => console.log('Connected to MongoDB'))
     .catch((err) => console.error('Could not connect to MongoDB:', err));
 
