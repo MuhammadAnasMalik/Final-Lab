@@ -3,18 +3,47 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manage Borrower</title>
+    <title><%= title %></title>
 </head>
 <body>
-    <h1>Manage Borrower</h1>
-    <form action="/api/borrowers/<%= borrower._id %>" method="POST">
-        <input type="text" name="name" value="<%= borrower.name %>" required />
+    <h1>Borrowers Management</h1>
+    
+    <!-- Form to Add a Borrower -->
+    <form action="/api/borrowers" method="POST">
+        <h2>Add a Borrower</h2>
+        <input type="text" name="name" placeholder="Name" required>
+        <input type="checkbox" name="membershipActive" value="true"> Membership Active<br>
+        <select name="membershipType" required>
+            <option value="Standard">Standard</option>
+            <option value="Premium">Premium</option>
+        </select>
+        <button type="submit">Add Borrower</button>
+    </form>
+    <br>
+
+    <!-- Form to Update a Borrower -->
+    <form action="/api/borrowers" method="PUT">
+        <h2>Update a Borrower</h2>
+        <input type="text" name="id" placeholder="Borrower ID" required>
+        <input type="text" name="name" placeholder="New Name">
         <select name="membershipType">
-            <option value="<%= borrower.membershipType %>"><%= borrower.membershipType %></option>
+            <option value="">Change Membership Type</option>
             <option value="Standard">Standard</option>
             <option value="Premium">Premium</option>
         </select>
         <button type="submit">Update Borrower</button>
     </form>
+    <br>
+
+    <!-- Form to Delete a Borrower -->
+    <form action="/api/borrowers" method="DELETE">
+        <h2>Delete a Borrower</h2>
+        <input type="text" name="id" placeholder="Borrower ID" required>
+        <button type="submit">Delete Borrower</button>
+    </form>
+    <br>
+
+    <!-- Navigation Button to Go Back to Home -->
+    <button onclick="location.href='/'">Back to Home</button>
 </body>
 </html>

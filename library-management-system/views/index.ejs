@@ -1,39 +1,16 @@
-<!-- index.ejs -->
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-    <title>Library Management System</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
 </head>
 <body>
-    <h1>Welcome to the Library</h1>
-
-    <!-- Form to add a book -->
-    <form action="/add-book" method="POST">
-        <label for="title">Book Title:</label>
-        <input type="text" id="title" name="title" required />
-
-        <label for="author">Select Author:</label>
-        <select id="author" name="author" required>
-            <option value="">Select Author</option>
-            <% authors.forEach(author => { %>
-                <option value="<%= author._id %>"><%= author.name %></option>
-            <% }) %>
-        </select>
-
-        <label for="isbn">ISBN:</label>
-        <input type="text" id="isbn" name="isbn" required />
-
-        <label for="availableCopies">Available Copies:</label>
-        <input type="number" id="availableCopies" name="availableCopies" required />
-
-        <button type="submit">Add Book</button>
-    </form>
-
-    <!-- Display list of books -->
-    <h2>Books</h2>
-    <ul>
-        <% books.forEach(book => { %>
-            <li><%= book.title %> by <%= book.author.name %></li>
-        <% }) %>
-    </ul>
+    <h1>Welcome to the Library Management System</h1>
+    <div>
+        <button onclick="location.href='/books'">Manage Books</button>
+        <button onclick="location.href='/authors'">Manage Authors</button>
+        <button onclick="location.href='/borrowers'">Manage Borrowers</button>
+    </div>
 </body>
 </html>

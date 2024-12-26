@@ -1,37 +1,55 @@
 const express = require('express');
 const Author = require('../models/author');
+const Book = require('../models/book');
 const router = express.Router();
 
 // Create Author
-router.post('/authors', async (req, res) => {
+router.post('/', async (req, res) => {
     try {
-        const { name, email, phoneNumber } = req.body;
-        const newAuthor = new Author({ name, email, phoneNumber });
-        await newAuthor.save();
-        res.status(201).json(newAuthor);
-    } catch (error) {
-        res.status(400).json({ error: error.message });
+        const author = new Author(req.body);
+        await author.save();
+        res.status(201).send(author);
+    } catch (err) {
+        res.status(400).send(err.message);
     }
 });
 
 // Update Author
-router.put('/authors/:id', async (req, res) => {
+router.put('/:id', async (req, res) => {
     try {
-        const { name, email, phoneNumber } = req.body;
-        const updatedAuthor = await Author.findByIdAndUpdate(req.params.id, { name, email, phoneNumber }, { new: true });
-        res.status(200).json(updatedAuthor);
-    } catch (error) {
-        res.status(400).json({ error: error.message });
+        const author = await Author.findByIdAndUpdate(req.params.id, req.body, { new: true });
+        res.status(200).send(author);
+    } catch (err) {
+        res.status(400).send(err.message);
     }
 });
 
 // Delete Author
-router.delete('/authors/:id', async (req, res) => {
+router.delete('/:id', async (req, res) => {
     try {
+        const author = await Author.findById(req.params.id);
+
+        // Ensure no books are linked before deletion
+        const linkedBooks = await Book.find({ author: author._id });
+        if (linkedBooks.length > 0) {
+            return res.status(400).send('Cannot delete author linked to books.');
+        }
+
         await Author.findByIdAndDelete(req.params.id);
-        res.status(200).json({ message: 'Author deleted successfully' });
-    } catch (error) {
-        res.status(400).json({ error: error.message });
+        res.status(204).send();
+    } catch (err) {
+        res.status(400).send(err.message);
+    }
+});
+
+// Get Authors Linked to More Than 5 Books
+router.get('/overlimit', async (req, res) => {
+    try {
+        const authors = await Author.find({}).populate('linkedBooks');
+        const overLimitAuthors = authors.filter((author) => author.linkedBooks.length > 5);
+        res.status(200).send(overLimitAuthors);
+    } catch (err) {
+        res.status(400).send(err.message);
     }
 });
 

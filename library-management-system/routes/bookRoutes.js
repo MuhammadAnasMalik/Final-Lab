@@ -1,38 +1,35 @@
 const express = require('express');
 const Book = require('../models/book');
-const Author = require('../models/author');
 const router = express.Router();
 
 // Create Book
-router.post('/books', async (req, res) => {
+router.post('/', async (req, res) => {
     try {
-        const { title, author, isbn, availableCopies } = req.body;
-        const newBook = new Book({ title, author, isbn, availableCopies });
-        await newBook.save();
-        res.status(201).json(newBook);
-    } catch (error) {
-        res.status(400).json({ error: error.message });
+        const book = new Book(req.body);
+        await book.save();
+        res.status(201).send(book);
+    } catch (err) {
+        res.status(400).send(err.message);
     }
 });
 
 // Update Book
-router.put('/books/:id', async (req, res) => {
+router.put('/:id', async (req, res) => {
     try {
-        const { title, author, isbn, availableCopies } = req.body;
-        const updatedBook = await Book.findByIdAndUpdate(req.params.id, { title, author, isbn, availableCopies }, { new: true });
-        res.status(200).json(updatedBook);
-    } catch (error) {
-        res.status(400).json({ error: error.message });
+        const book = await Book.findByIdAndUpdate(req.params.id, req.body, { new: true });
+        res.status(200).send(book);
+    } catch (err) {
+        res.status(400).send(err.message);
     }
 });
 
 // Delete Book
-router.delete('/books/:id', async (req, res) => {
+router.delete('/:id', async (req, res) => {
     try {
         await Book.findByIdAndDelete(req.params.id);
-        res.status(200).json({ message: 'Book deleted successfully' });
-    } catch (error) {
-        res.status(400).json({ error: error.message });
+        res.status(204).send();
+    } catch (err) {
+        res.status(400).send(err.message);
     }
 });
 

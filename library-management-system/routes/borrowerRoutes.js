@@ -4,63 +4,100 @@ const Book = require('../models/book');
 const router = express.Router();
 
 // Create Borrower
-router.post('/borrowers', async (req, res) => {
+router.post('/', async (req, res) => {
     try {
-        const { name, membershipActive, membershipType } = req.body;
-        const newBorrower = new Borrower({ name, membershipActive, membershipType });
-        await newBorrower.save();
-        res.status(201).json(newBorrower);
-    } catch (error) {
-        res.status(400).json({ error: error.message });
+        const borrower = new Borrower(req.body);
+        await borrower.save();
+        res.status(201).send(borrower);
+    } catch (err) {
+        res.status(400).send(err.message);
     }
 });
 
-// Borrow Book
-router.post('/borrowers/:id/borrow', async (req, res) => {
+// Update Borrower
+router.put('/:id', async (req, res) => {
     try {
-        const { bookId } = req.body;
+        const borrower = await Borrower.findByIdAndUpdate(req.params.id, req.body, { new: true });
+        res.status(200).send(borrower);
+    } catch (err) {
+        res.status(400).send(err.message);
+    }
+});
+
+// Borrow a Book
+router.post('/:id/borrow', async (req, res) => {
+    try {
         const borrower = await Borrower.findById(req.params.id);
-        const book = await Book.findById(bookId);
-
-        if (book.availableCopies === 0) {
-            return res.status(400).json({ error: 'No available copies for this book.' });
+        if (!borrower.membershipActive) {
+            return res.status(400).send('Cannot borrow books with inactive membership.');
         }
 
-        if (borrower.borrowBooks.length >= (borrower.membershipType === 'Premium' ? 100 : 5)) {
-            return res.status(400).json({ error: 'Borrowing limit exceeded for this member.' });
+        const book = await Book.findById(req.body.bookId);
+        if (book.availableCopies <= 0) {
+            return res.status(400).send('No available copies of the book.');
         }
 
-        borrower.borrowBooks.push(book);
+        const borrowLimit = borrower.membershipType === 'Premium' ? 100 : 5;
+        if (borrower.borrowedBooks.length >= borrowLimit) {
+            return res.status(400).send('Borrowing limit exceeded.');
+        }
+
+        // Update Book and Borrower Data
         book.availableCopies -= 1;
-        await borrower.save();
-        await book.save();
+        borrower.borrowedBooks.push(book._id);
 
-        res.status(200).json({ message: 'Book borrowed successfully.' });
-    } catch (error) {
-        res.status(400).json({ error: error.message });
+        await book.save();
+        await borrower.save();
+
+        res.status(200).send({ borrower, book });
+    } catch (err) {
+        res.status(400).send(err.message);
     }
 });
 
-// Return Book
-router.post('/borrowers/:id/return', async (req, res) => {
+// Return a Book
+router.post('/:id/return', async (req, res) => {
     try {
-        const { bookId } = req.body;
         const borrower = await Borrower.findById(req.params.id);
-        const book = await Book.findById(bookId);
+        const book = await Book.findById(req.body.bookId);
 
-        const index = borrower.borrowBooks.indexOf(bookId);
-        if (index === -1) {
-            return res.status(400).json({ error: 'This book was not borrowed by this member.' });
+        // Ensure the borrower has borrowed the book
+        const bookIndex = borrower.borrowedBooks.indexOf(book._id);
+        if (bookIndex === -1) {
+            return res.status(400).send('This book was not borrowed by the borrower.');
         }
 
-        borrower.borrowBooks.splice(index, 1);
+        // Update Book and Borrower Data
         book.availableCopies += 1;
-        await borrower.save();
-        await book.save();
+        borrower.borrowedBooks.splice(bookIndex, 1);
 
-        res.status(200).json({ message: 'Book returned successfully.' });
-    } catch (error) {
-        res.status(400).json({ error: error.message });
+        await book.save();
+        await borrower.save();
+
+        res.status(200).send({ borrower, book });
+    } catch (err) {
+        res.status(400).send(err.message);
+    }
+});
+
+// Prevent Borrowing if Borrower Has Overdue Books
+router.get('/:id/overdue', async (req, res) => {
+    try {
+        const borrower = await Borrower.findById(req.params.id).populate('borrowedBooks');
+        
+        // Simulated check for overdue books
+        const overdueBooks = borrower.borrowedBooks.filter((book) => {
+            // Logic to check for overdue (e.g., using timestamps)
+            return false; // Replace with actual overdue logic
+        });
+
+        if (overdueBooks.length > 0) {
+            return res.status(400).send('Cannot borrow books with overdue items.');
+        }
+
+        res.status(200).send('No overdue books.');
+    } catch (err) {
+        res.status(400).send(err.message);
     }
 });
 
