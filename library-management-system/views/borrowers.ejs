@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Borrower</title>
+</head>
+<body>
+    <h1>Manage Borrower</h1>
+    <form action="/api/borrowers/<%= borrower._id %>" method="POST">
+        <input type="text" name="name" value="<%= borrower.name %>" required />
+        <select name="membershipType">
+            <option value="<%= borrower.membershipType %>"><%= borrower.membershipType %></option>
+            <option value="Standard">Standard</option>
+            <option value="Premium">Premium</option>
+        </select>
+        <button type="submit">Update Borrower</button>
+    </form>
+</body>
+</html>

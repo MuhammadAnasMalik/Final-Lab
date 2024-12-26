@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Author</title>
+</head>
+<body>
+    <h1>Manage Author</h1>
+    <form action="/api/authors/<%= author._id %>" method="POST">
+        <input type="text" name="name" value="<%= author.name %>" required />
+        <input type="email" name="email" value="<%= author.email %>" required />
+        <input type="text" name="phoneNumber" value="<%= author.phoneNumber %>" required />
+        <button type="submit">Update Author</button>
+    </form>
+</body>
+</html>

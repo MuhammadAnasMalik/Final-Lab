@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Book</title>
+</head>
+<body>
+    <h1>Manage Book</h1>
+    <form action="/api/books/<%= book._id %>" method="POST">
+        <input type="text" name="title" value="<%= book.title %>" required />
+        <input type="text" name="isbn" value="<%= book.isbn %>" required />
+        <input type="number" name="availableCopies" value="<%= book.availableCopies %>" required />
+        <select name="author">
+            <option value="<%= book.author._id %>"><%= book.author.name %></option>
+            <% authors.forEach(author => { %>
+                <option value="<%= author._id %>"><%= author.name %></option>
+            <% }) %>
+        </select>
+        <button type="submit">Update Book</button>
+    </form>
+</body>
+</html>
